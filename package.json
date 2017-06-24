@@ -1,0 +1,17 @@
+{
+  "name": "tipcalculator",
+  "version": "0.0.1",
+  "description": "Simple tip calculator application taken from Exercises For Programmers by Brian P. Hogan",
+  "main": "app.js",
+  "dependencies": {
+    "chai": "^4.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^3.4.2"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Edmund Southgate",
+  "license": "ISC"
+}
