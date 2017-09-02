@@ -1,0 +1,11 @@
+extends layout 
+
+block main
+  form(action='result' method='POST')
+    label(for='name') Name: 
+    input(type='text' name='name')
+    label(for='billAmount') Bill amount: 
+    input(type='text' name='billAmount')
+    label(for='tipPercentage') Tip Percentage: 
+    input(type='text' name='tipPercentage') 
+    input(type='submit')    
