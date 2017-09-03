@@ -4,13 +4,19 @@
   "description": "Simple tip calculator application taken from Exercises For Programmers by Brian P. Hogan",
   "main": "app.js",
   "dependencies": {
-    "chai": "^4.0.2"
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.4",
+    "pug": "^2.0.0-rc.3"
   },
   "devDependencies": {
+    "chai": "^4.1.1",
+    "chai-http": "^3.0.0",
     "mocha": "^3.4.2"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "test:watch": "mocha --watch ./test ./"
   },
   "author": "Edmund Southgate",
   "license": "ISC"

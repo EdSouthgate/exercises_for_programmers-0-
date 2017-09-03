@@ -2,10 +2,14 @@ extends layout
 
 block main
   form(action='result' method='POST')
-    label(for='name') Name: 
-    input(type='text' name='name')
+    label(for='currency') Currency: 
+    input(type='text' name='currency')
     label(for='billAmount') Bill amount: 
     input(type='text' name='billAmount')
-    label(for='tipPercentage') Tip Percentage: 
-    input(type='text' name='tipPercentage') 
+    label(for='tipPercentage') Tip percentage:    
+    select(name='tipPercentage')   
+      -for(var i = 0; i < 21; i++)
+        option #{i * 5}%                     
+    label(for='people') No of people: 
+    input(type='text' name='people')  
     input(type='submit')    

@@ -2,8 +2,11 @@ extends layout
 
 block main
   
-  h2 Name: #{name}
-  h2 Bill Amount: £#{billAmount}  
+  h2 Bill Amount: #{currency}#{billAmount.toFixed(2)}  
   h2 Tip Percentage: #{tipPercentage}%
-  h2 Tip Amount: £#{tip}
-  h2 Total: £#{total}
+  h2 Tip Amount: #{currency}#{tip.toFixed(2)}
+  h2 Total: #{currency}#{total.toFixed(2)}
+  h2 No of people: #{people}
+  h2 Bill per person: #{currency}#{billPerPerson.toFixed(2)}
+  h2 Tip per person: #{currency}#{tipPerPerson.toFixed(2)}
+  h2 Total per person: #{currency}#{totalPerPerson.toFixed(2)}
