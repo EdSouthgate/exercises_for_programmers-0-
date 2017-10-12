@@ -1,12 +1,21 @@
 extends layout 
 
 block main
-  
-  h2 Bill Amount: #{currency}#{billAmount.toFixed(2)}  
-  h2 Tip Percentage: #{tipPercentage}%
-  h2 Tip Amount: #{currency}#{tip.toFixed(2)}
-  h2 Total: #{currency}#{total.toFixed(2)}
-  h2 No of people: #{people}
-  h2 Bill per person: #{currency}#{billPerPerson.toFixed(2)}
-  h2 Tip per person: #{currency}#{tipPerPerson.toFixed(2)}
-  h2 Total per person: #{currency}#{totalPerPerson.toFixed(2)}
+  h3 Bill Amount: #{bill.currencyFrom} #{bill.billAmount}  
+  h3 Tip Percentage: #{bill.tipPercentage}%
+  h3 Tip Amount: #{bill.currencyFrom} #{bill.tip}
+  h3 Total: #{bill.currencyFrom} #{bill.total}
+  h3 No of people: #{bill.people}
+  h3 Bill per person: #{bill.currencyFrom} #{bill.billPerPerson}
+  h3 Tip per person: #{bill.currencyFrom} #{bill.tipPerPerson}
+  h3 Total per person: #{bill.currencyFrom} #{bill.totalPerPerson}
+  if bill.totalPaid 
+    h3 Total paid: #{bill.currencyFrom} #{bill.totalPaid}
+  h3 Converted Bill Amount: #{bill.currencyTo} #{bill.convBillAmount}  
+  h3 Converted Tip Amount: #{bill.currencyTo} #{bill.convTip}
+  h3 Converted Total: #{bill.currencyTo} #{bill.convTotal}
+  h3 Converted Bill per person: #{bill.currencyTo} #{bill.convBillPerPerson}
+  h3 Converted Tip per person: #{bill.currencyTo} #{bill.convTipPerPerson}
+  h3 Converted Total per person: #{bill.currencyTo} #{bill.convTotalPerPerson}
+  if bill.convTotalPaid
+    h3 Converted Total paid: #{bill.currencyTo} #{bill.convTotalPaid}   

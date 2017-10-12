@@ -2,8 +2,10 @@ extends layout
 
 block main
   form(action='result' method='POST')
-    label(for='currency') Currency: 
-    input(type='text' name='currency')
+    label(for='currencyFrom') Currency you are paying in: 
+    input(type='text' name='currencyFrom')
+    label(for='currencyTo') Your home currency: 
+    input(type='text' name='currencyTo')  
     label(for='billAmount') Bill amount: 
     input(type='text' name='billAmount')
     label(for='tipPercentage') Tip percentage:    
