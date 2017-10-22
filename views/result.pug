@@ -1,21 +1,25 @@
 extends layout 
 
 block main
-  h3 Bill Amount: #{bill.currencyFrom} #{bill.billAmount}  
-  h3 Tip Percentage: #{bill.tipPercentage}%
-  h3 Tip Amount: #{bill.currencyFrom} #{bill.tip}
-  h3 Total: #{bill.currencyFrom} #{bill.total}
-  h3 No of people: #{bill.people}
-  h3 Bill per person: #{bill.currencyFrom} #{bill.billPerPerson}
-  h3 Tip per person: #{bill.currencyFrom} #{bill.tipPerPerson}
-  h3 Total per person: #{bill.currencyFrom} #{bill.totalPerPerson}
-  if bill.totalPaid 
-    h3 Total paid: #{bill.currencyFrom} #{bill.totalPaid}
-  h3 Converted Bill Amount: #{bill.currencyTo} #{bill.convBillAmount}  
-  h3 Converted Tip Amount: #{bill.currencyTo} #{bill.convTip}
-  h3 Converted Total: #{bill.currencyTo} #{bill.convTotal}
-  h3 Converted Bill per person: #{bill.currencyTo} #{bill.convBillPerPerson}
-  h3 Converted Tip per person: #{bill.currencyTo} #{bill.convTipPerPerson}
-  h3 Converted Total per person: #{bill.currencyTo} #{bill.convTotalPerPerson}
-  if bill.convTotalPaid
-    h3 Converted Total paid: #{bill.currencyTo} #{bill.convTotalPaid}   
+  .currencyFrom
+    h1 Your bill in the currency you paid in
+    h3 Bill Amount:  #{bill.billAmount} #{bill.currencyFrom}  
+    h3 Tip Percentage: #{bill.tipPercentage}%
+    h3 Tip Amount:  #{bill.tip} #{bill.currencyFrom}
+    h3 Total:  #{bill.total} #{bill.currencyFrom}
+    h3 No of people: #{bill.people}
+    h3 Bill per person:  #{bill.billPerPerson} #{bill.currencyFrom}
+    h3 Tip per person: #{bill.tipPerPerson} #{bill.currencyFrom}
+    h3 Total per person:  #{bill.totalPerPerson} #{bill.currencyFrom}
+    if bill.totalPaid 
+      h3 Total paid:  #{bill.totalPaid} #{bill.currencyFrom}
+  .currencyTo
+    h1 Your bill in your home currency    
+    h3 Converted Bill Amount: #{bill.convBillAmount} #{bill.currencyTo} 
+    h3 Converted Tip Amount: #{bill.convTip} #{bill.currencyTo}
+    h3 Converted Total: #{bill.convTotal} #{bill.currencyTo}
+    h3 Converted Bill per person: #{bill.convBillPerPerson} #{bill.currencyTo}
+    h3 Converted Tip per person: #{bill.convTipPerPerson} #{bill.currencyTo}
+    h3 Converted Total per person: #{bill.convTotalPerPerson} #{bill.currencyTo}
+    if bill.convTotalPaid
+      h3 Converted Total paid: #{bill.convTotalPaid} #{bill.currencyTo}   

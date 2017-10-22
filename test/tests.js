@@ -1,6 +1,8 @@
 var expect = require('chai').expect;
 const Bill = require('../tip_calculator/tip_calculator_methods').Bill;
 const getExchangeRate = require('../middleware/index.js').getExchangeRate;
+const getCurrencyInfo = require('../middleware/index.js').getCurrencyInfo;
+const getDecimalPlaces = require('../middleware/index.js').getDecimalPlaces;
 // test suite
 describe('Mocha', function() {
   //Test spec (unit test)
@@ -179,4 +181,47 @@ describe('getExchangeRate', function(done) {
     done();
     expect(getExchangeRate('pounds', 'dollars')).to.be.an('error');
   })
+});
+
+describe('getCurrencyInfo', function() {
+  it('should return an object containing information about currencies', function(done) {
+    done();
+    expect(getCurrencyInfo()).to.be.an('object');
+  });
+});
+
+describe('getDecimalPlaces', function() {
+  it('take two currency ISO codes and return the number of decimal places from the currencyInfo object', function() {
+    const currencyInfo = {
+                            "GBP": {
+                                "symbol": "£",
+                                "name": "British Pound Sterling",
+                                "symbol_native": "£",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "GBP",
+                                "name_plural": "British pounds sterling"
+                            },
+                            "HRK": {
+                                "symbol": "kn",
+                                "name": "Croatian Kuna",
+                                "symbol_native": "kn",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "HRK",
+                                "name_plural": "Croatian kunas"
+                            },
+                            "HUF": {
+                                "symbol": "Ft",
+                                "name": "Hungarian Forint",
+                                "symbol_native": "Ft",
+                                "decimal_digits": 0,
+                                "rounding": 0,
+                                "code": "HUF",
+                                "name_plural": "Hungarian forints"
+                            }
+                          }
+
+    expect(getDecimalPlaces({currencyFrom: 'GBP', currencyTo: 'HUF'}, currencyInfo)).to.deep.equal({currencyFromPlaces: 2, currencyToPlaces: 0});
+  });
 });

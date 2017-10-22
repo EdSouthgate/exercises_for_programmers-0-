@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const Bill = require('./tip_calculator/tip_calculator_methods.js').Bill;
 const getExchangeRate = require('./middleware/index.js').getExchangeRate;
+const getCurrencyInfo = require('./middleware/index.js').getCurrencyInfo;
+const getDecimalPlaces = require('./middleware/index.js').getDecimalPlaces;
 
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(cookieParser());
@@ -14,13 +16,32 @@ app.set('view engine', 'pug');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use((req, res, next) => {
+  getCurrencyInfo()
+            .then((data) => {
+              const currencyInfo = data
+              res.locals.currencyInfo = currencyInfo;
+              next();
+            })
+            .catch((error) => {
+              next(error);
+            })
+
+});
+
 app.use('/result', (req, res, next) => {
   const bill = new Bill(req.body);
   getExchangeRate(bill.currencyFrom, bill.currencyTo)
       .then((value) => {
         bill.exchangeRate = value;
+        console.log(bill.exchangeRate)
       })
       .then(function() {
+        const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
+        bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
+        bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
+        console.log('currencyFrom = ' + bill.currencyFrom + ' currencyFromPlaces ' + bill.currencyFromPlaces);
+        console.log('currencyTo = ' + bill.currencyTo + ' currencyToPlaces ' + bill.currencyToPlaces);
         bill.calculateTip();
         bill.calculateTotalPlusTip();
         bill.splitBill();
@@ -29,9 +50,10 @@ app.use('/result', (req, res, next) => {
         next();
       })
       .catch((error) => {
-        console.log(error.message);
+        next(error);
       })
 });
+
 
 
 
