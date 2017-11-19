@@ -20,18 +20,11 @@ describe('Bill.calculateTip', function() {
     expect(myBill.tip).to.equal(10);
   })
 
-  it('it should return a number rounded to two decimal figures',
-function() {
-    myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: 15.78234, tipPercentage: 12.782, people: 5});
-    myBill.calculateTip();
-    expect(myBill.tip).to.equal(2.02);
-  })
-
   it('it should be able to accept numbers as strings types and number types',
 function() {
     myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: '15.78234', tipPercentage: '12.782', people: 5});
     myBill.calculateTip()
-    expect(myBill.tip).to.equal(2.02);
+    expect(myBill.tip).to.equal(2.0169996);
   })
 
   it('it should return an error if the input is not a number',
@@ -54,20 +47,12 @@ describe('Bill.calculateTotalPlusTip', function() {
     expect(myBill.total).to.equal(110);
   });
 
-  it('should round the output to two decimal figures',
-  function() {
-    const myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: 15.78234, tipPercentage: 12.782, people: 5});
-    myBill.calculateTip();
-    myBill.calculateTotalPlusTip();
-    expect(myBill.total).to.equal(17.80);
-  });
-
   it('it should be able to accept numbers as strings types and number types',
 function() {
   const myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: '15.78234', tipPercentage: '12.782', people: 5});
   myBill.calculateTip();
   myBill.calculateTotalPlusTip();
-  expect(myBill.total).to.equal(17.80);
+  expect(myBill.total).to.equal(17.7969996);
   });
 
   it('it should return an error if the input is not a number',
@@ -143,14 +128,66 @@ describe('Bill.convertBill', function() {
       myBill.splitBill();
       myBill.exchangeRate = 1.33975;
       myBill.convertBill();
-      expect(myBill.convBillAmount).to.equal(133.97);
-      expect(myBill.convTip).to.equal(13.40);
-      expect(myBill.convTotal).to.equal(147.37);
-      expect(myBill.convBillPerPerson).to.equal(26.80);
-      expect(myBill.convTipPerPerson).to.equal(2.68);
-      expect(myBill.convTotalPerPerson).to.equal(29.47);
+      expect(myBill.convBillAmount).to.equal(133.975);
+      expect(myBill.convTip).to.equal(13.3975);
+      expect(myBill.convTotal).to.equal(147.3725);
+      expect(myBill.convBillPerPerson).to.equal(26.795);
+      expect(myBill.convTipPerPerson).to.equal(2.6795);
+      expect(myBill.convTotalPerPerson).to.equal(29.4745);
   });
 });
+
+describe('Bill.roundBill', function() {
+  it('should round currencies to the appropriate number of decimal places', function() {
+      const myBill = new Bill({ currencyFrom: 'GBP',
+                                currencyTo: 'HUF',
+                                billAmount: 100,
+                                tipPercentage: 10,
+                                people: 3})
+
+      myBill.tip = 10;
+      myBill.total = 110;
+      myBill.billPerPerson = 33.34;
+      myBill.tipPerPerson = 3.3333333333;
+      myBill.totalPerPerson = 36.6733333333;
+      myBill.totalPaid = 100.02;
+      myBill.exchangeRate = 350.19;
+      myBill.convBillAmount = 35019;
+      myBill.convTip = 3501.9;
+      myBill.convTotal = 38520.9;
+      myBill.convBillPerPerson = 11675.3346;
+      myBill.convTipPerPerson = 1167.3;
+      myBill.convTotalPerPerson = 12842.6346;
+      myBill.convTotalPaid = 35036.0038;
+      myBill.currencyFromPlaces = 2;
+      myBill.currencyToPlaces = 0;
+
+      myBill.roundBill();
+      expect(myBill).to.deep.equal({
+        currencyFrom: 'GBP',
+        currencyTo: 'HUF',
+        billAmount: '100.00',
+        tipPercentage: 10,
+        people: 3,
+        tip: '10.00',
+        total: '110.00',
+        totalPerPerson: '36.68',
+        billPerPerson: '33.34',
+        tipPerPerson: '3.33',
+        convTotalPerPerson: '12843',
+        totalPaid: '100.02',
+        exchangeRate: 350.19,
+        convBillAmount: '35019',
+        convTip: '3502',
+        convTotal: '38521',
+        convBillPerPerson: '11675',
+        convTipPerPerson: '1167',
+        convTotalPaid: '35036',
+        currencyFromPlaces: 2,
+        currencyToPlaces: 0
+      });
+  })
+})
 
 describe('roundUp', function() {
   it('should take a number and a number of decimal places and round it up to that number of decimal places',

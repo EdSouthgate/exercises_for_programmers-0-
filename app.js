@@ -34,18 +34,16 @@ app.use('/result', (req, res, next) => {
   getExchangeRate(bill.currencyFrom, bill.currencyTo)
       .then((value) => {
         bill.exchangeRate = value;
-        console.log(bill.exchangeRate)
       })
       .then(function() {
         const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
         bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
         bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
-        console.log('currencyFrom = ' + bill.currencyFrom + ' currencyFromPlaces ' + bill.currencyFromPlaces);
-        console.log('currencyTo = ' + bill.currencyTo + ' currencyToPlaces ' + bill.currencyToPlaces);
         bill.calculateTip();
         bill.calculateTotalPlusTip();
         bill.splitBill();
         bill.convertBill();
+        bill.roundBill();
         res.locals.bill = bill;
         next();
       })
