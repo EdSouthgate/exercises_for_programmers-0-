@@ -104,6 +104,17 @@ describe('Bill.splitBill', function() {
     expect(myBill.totalPaid).to.be.undefined;
   });
 
+  it('should not split the bill if no number of people is provided or if the number of people provided <= 1',
+  function() {
+    myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: 100, tipPercentage: 10, people: 1});
+    expect(myBill.billPerPerson).to.be.an('undefined');
+    expect(myBill.tipPerPerson).to.be.an('undefined');
+    expect(myBill.totalPerPerson).to.be.an('undefined');
+    expect(myBill.totalPaid).to.be.an('undefined');
+
+
+  });
+
 });
 
 describe('Bill', function() {
@@ -163,29 +174,21 @@ describe('Bill.roundBill', function() {
       myBill.currencyToPlaces = 0;
 
       myBill.roundBill();
-      expect(myBill).to.deep.equal({
-        currencyFrom: 'GBP',
-        currencyTo: 'HUF',
-        billAmount: '100.00',
-        tipPercentage: 10,
-        people: 3,
-        tip: '10.00',
-        total: '110.00',
-        totalPerPerson: '36.68',
-        billPerPerson: '33.34',
-        tipPerPerson: '3.33',
-        convTotalPerPerson: '12843',
-        totalPaid: '100.02',
-        exchangeRate: 350.19,
-        convBillAmount: '35019',
-        convTip: '3502',
-        convTotal: '38521',
-        convBillPerPerson: '11675',
-        convTipPerPerson: '1167',
-        convTotalPaid: '35036',
-        currencyFromPlaces: 2,
-        currencyToPlaces: 0
-      });
+
+      expect(myBill.billAmount).to.equal('100.00');
+      expect(myBill.tip).to.equal('10.00');
+      expect(myBill.total).to.equal('110.00');
+      expect(myBill.totalPerPerson).to.equal('36.68');
+      expect(myBill.billPerPerson).to.equal('33.34');
+      expect(myBill.tipPerPerson).to.equal('3.33');
+      expect(myBill.convTotalPerPerson).to.equal('12843');
+      expect(myBill.totalPaid).to.equal('100.02');
+      expect(myBill.convBillAmount).to.equal('35019');
+      expect(myBill.convTip).to.equal('3502');
+      expect(myBill.convTotal).to.equal('38521');
+      expect(myBill.convBillPerPerson).to.equal('11675');
+      expect(myBill.convTipPerPerson).to.equal('1167');
+      expect(myBill.convTotalPaid).to.equal('35036');
   })
 })
 
