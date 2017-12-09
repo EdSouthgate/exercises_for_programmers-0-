@@ -75,15 +75,13 @@ describe('Bill.splitBill', function() {
     expect(myBill.totalPerPerson).to.equal(22.00);
   });
 
-  it('should round up the total per person in order to avoid short fall in bill',
+  it('should round up the bill per person in order to avoid short fall in bill',
   function() {
     myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: 100, tipPercentage: 10, people: 3});
     myBill.calculateTip();
     myBill.calculateTotalPlusTip();
     myBill.splitBill();
     expect(myBill.billPerPerson).to.equal(33.34);
-    expect(myBill.tipPerPerson).to.equal(3.33);
-    expect(myBill.totalPerPerson).to.equal(36.67);
   });
 
   it('should set a new key called amountPaid giving the total paid when rounding',
@@ -107,6 +105,9 @@ describe('Bill.splitBill', function() {
   it('should not split the bill if no number of people is provided or if the number of people provided <= 1',
   function() {
     myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: 100, tipPercentage: 10, people: 1});
+    myBill.calculateTip();
+    myBill.calculateTotalPlusTip();
+    myBill.splitBill();
     expect(myBill.billPerPerson).to.be.an('undefined');
     expect(myBill.tipPerPerson).to.be.an('undefined');
     expect(myBill.totalPerPerson).to.be.an('undefined');
@@ -145,6 +146,20 @@ describe('Bill.convertBill', function() {
       expect(myBill.convBillPerPerson).to.equal(26.795);
       expect(myBill.convTipPerPerson).to.equal(2.6795);
       expect(myBill.convTotalPerPerson).to.equal(29.4745);
+  });
+  it('should not convert the bill if no currency is provided or both currencyTo and currencyFrom are the same', function() {
+    myBill = new Bill({billAmount: 100, tipPercentage: 10, people: 5});
+    myBill.calculateTip();
+    myBill.calculateTotalPlusTip();
+    myBill.splitBill();
+    myBill.exchangeRate = 1.33975;
+    myBill.convertBill();
+    expect(myBill.convBillAmount).to.be.an('undefined');
+    expect(myBill.convTip).to.be.an('undefined');
+    expect(myBill.convTotal).to.be.an('undefined');
+    expect(myBill.convBillPerPerson).to.be.an('undefined');
+    expect(myBill.convTipPerPerson).to.be.an('undefined');
+    expect(myBill.convTotalPerPerson).to.be.an('undefined');
   });
 });
 
@@ -209,6 +224,13 @@ describe('roundUp', function() {
     expect(roundUp(3.33, 2)).to.equal(3.33);
     expect(roundUp(3.333, 3)).to.equal(3.333);
   });
+})
+
+describe('divide', function() {
+  it('should divide the first parameter by the second parameter', function() {
+    const divide = require('../mathmatical_methods/mathmatical_methods.js').divide
+    expect(divide(4, 2)).to.equal(2);
+  })
 })
 
 
