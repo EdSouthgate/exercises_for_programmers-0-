@@ -35,7 +35,7 @@ app.use('/result', (req, res, next) => {
       .then((value) => {
         bill.exchangeRate = value;
       })
-      .then(function() {
+      .then(function(){
         const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
         bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
         bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
@@ -46,10 +46,17 @@ app.use('/result', (req, res, next) => {
         bill.roundBill();
         res.locals.bill = bill;
         next();
+      }).catch((err) => {
+        next(err);
       })
-      .catch((error) => {
-        next(error);
-      })
+});
+
+
+
+app.use((err, req, res, next) => {
+  res.locals.error = err;
+  res.status(err.status);
+  res.render('error');
 });
 
 

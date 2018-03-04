@@ -3,35 +3,42 @@ const roundUp = require("../mathmatical_methods/mathmatical_methods.js").roundUp
 const divide = require("../mathmatical_methods/mathmatical_methods.js").divide;
 
 function Bill(object) {
-  if(object.currencyFrom && object.CurrencyTo && object.currencyFrom !== object.currencyTo) {
+  if(object.currencyFrom && object.currencyTo && object.currencyFrom !== object.currencyTo) {
   this.currencyFrom = (object.currencyFrom).slice(0, 3);
   this.currencyTo = (object.currencyTo).slice(0, 3);
-  }
-  let billAmount = parseFloat(object.billAmount);
+} else if(typeof object.currencyFrom === 'string'){
+  this.currencyFrom = (object.currencyFrom).slice(0,3);
+} else {
+  this.currencyFrom = undefined;
+}
+  this.billAmount = parseFloat(object.billAmount);
   this.tipPercentage = parseFloat(object.tipPercentage);
   if(object.people && object.people > 1) {
     this.people = parseFloat(object.people);
   }
 }
 
-Bill.prototype.calculateTip = function () {
+Bill.prototype.calculateTip = function (next) {
   let tipAmount = (this.billAmount / 100 * this.tipPercentage);
   tipAmount = parseFloat(tipAmount);
-  if(isNaN(tipAmount)) {
+  if(Number.isNaN(tipAmount)) {
     let err = new Error("Input is not a number");
-    return err;
+    err.status(500);
+    throw err;
+
   } else {
-    tipAmount = parseFloat(tipAmount);
     this.tip = tipAmount;
   }
 }
 
 
-Bill.prototype.calculateTotalPlusTip = function () {
+
+Bill.prototype.calculateTotalPlusTip = function (next) {
   let total = this.billAmount + this.tip;
   if(Number.isNaN(total)) {
     let err = new Error("Input is not a number");
-    return err;
+    err.status(500);
+    throw err;
   }
   total = parseFloat(total);
   this.total = total;
@@ -67,8 +74,8 @@ Bill.prototype.splitBill = function() {
     }
 }
 
-Bill.prototype.convertBill = function() {
-  if(this.currencyTo && this.currencyFrom && this.currencyTo !== this.currencyFrom) {
+Bill.prototype.convertBill = function(next) {
+  if(this.currencyFrom && this.currencyTo && this.currencyFrom !== this.currencyTo) {
     let convBillAmount = parseFloat(this.billAmount) * parseFloat(this.exchangeRate);
     this.convBillAmount = parseFloat(convBillAmount);
 
@@ -91,6 +98,10 @@ Bill.prototype.convertBill = function() {
       let convTotalPaid = parseFloat(this.totalPaid) * parseFloat(this.exchangeRate);
       this.convTotalPaid = parseFloat(convTotalPaid);
     }
+  } else {
+    const err = new Error('Incorrect input for convert bill function');
+    err.status(500);
+    throw err;
   }
 };
 

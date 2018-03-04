@@ -24,7 +24,7 @@ describe('Bill.calculateTip', function() {
 function() {
     myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: '15.78234', tipPercentage: '12.782', people: 5});
     myBill.calculateTip()
-    expect(myBill.tip).to.equal(2.0169996);
+    expect(myBill.tip).to.equal(2.0172986988);
   })
 
   it('it should return an error if the input is not a number',
@@ -52,7 +52,7 @@ function() {
   const myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: '15.78234', tipPercentage: '12.782', people: 5});
   myBill.calculateTip();
   myBill.calculateTotalPlusTip();
-  expect(myBill.total).to.equal(17.7969996);
+  expect(myBill.total).to.equal(17.7996386988);
   });
 
   it('it should return an error if the input is not a number',
@@ -125,11 +125,9 @@ function(done) {
     const myBill = new Bill({currencyFrom: "GBP", currencyTo: "USD", billAmount: "100", tipPercentage: "10", people: "5"})
     expect(myBill).to.deep.equal({currencyFrom: "GBP", currencyTo: "USD", billAmount: 100, tipPercentage: 10,
     people: 5});
-  })
-  it('should return all currency values to two decimal places', function() {
-    const myBill = new Bill({currencyFrom: 'GBP', currencyTo: "USD", billAmount: 158.333, tipPercentage: '20', people: '6'})
-    expect(myBill.billAmount).to.equal(158.33);
-  })
+  });
+
+
 });
 
 describe('Bill.convertBill', function() {
@@ -147,19 +145,13 @@ describe('Bill.convertBill', function() {
       expect(myBill.convTipPerPerson).to.equal(2.6795);
       expect(myBill.convTotalPerPerson).to.equal(29.4745);
   });
-  it('should not convert the bill if no currency is provided or both currencyTo and currencyFrom are the same', function() {
+  it('should return an error if the bill if no currency is provided or both currencyTo and currencyFrom are the same', function() {
     myBill = new Bill({billAmount: 100, tipPercentage: 10, people: 5});
     myBill.calculateTip();
     myBill.calculateTotalPlusTip();
     myBill.splitBill();
     myBill.exchangeRate = 1.33975;
-    myBill.convertBill();
-    expect(myBill.convBillAmount).to.be.an('undefined');
-    expect(myBill.convTip).to.be.an('undefined');
-    expect(myBill.convTotal).to.be.an('undefined');
-    expect(myBill.convBillPerPerson).to.be.an('undefined');
-    expect(myBill.convTipPerPerson).to.be.an('undefined');
-    expect(myBill.convTotalPerPerson).to.be.an('undefined');
+    expect(myBill.convertBill()).to.be.an('error');
   });
 });
 
@@ -189,7 +181,6 @@ describe('Bill.roundBill', function() {
       myBill.currencyToPlaces = 0;
 
       myBill.roundBill();
-
       expect(myBill.billAmount).to.equal('100.00');
       expect(myBill.tip).to.equal('10.00');
       expect(myBill.total).to.equal('110.00');

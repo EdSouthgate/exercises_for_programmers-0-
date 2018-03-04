@@ -32,16 +32,16 @@ function getCurrencyInfo(currencyFrom, currencyTo) {
       response.on('end', () => {
         const currencyInfo = JSON.parse(body);
         const supportedCurrencies = ['AUD','BGN','BRL','CAD','CHF','CNY','CZK','DKK',
-        'EUR','GBP','HKD','HRK','HUF','IDR','ILS','INR','JPY','KRW','MXN','MYR',
-        'NOK','NZD','PHP','PLN','RON','RUB','SEK','SGD','THB','TRY','USD','ZAR'];
-        let currenciesToReturn = {};
-        for (key in currencyInfo) {
-          for(let i = 0; i < supportedCurrencies.length; i++) {
-            let currency = supportedCurrencies[i];
-            currenciesToReturn[currency] = currencyInfo[currency];
-          }
-        }
-        resolve(currenciesToReturn);
+         'EUR','GBP','HKD','HRK','HUF','IDR','ILS','INR','JPY','KRW','MXN','MYR',
+         'NOK','NZD','PHP','PLN','RON','RUB','SEK','SGD','THB','TRY','USD','ZAR'];
+         let currenciesToReturn = {};
+         for (key in currencyInfo) {
+           for(let i = 0; i < supportedCurrencies.length; i++) {
+             let currency = supportedCurrencies[i];
+             currenciesToReturn[currency] = currencyInfo[currency];
+           }
+         }
+         resolve(currenciesToReturn);
       })
     });
   });

@@ -3,17 +3,19 @@ extends layout
 block main
   .currencyFrom
     h2 Your bill in the currency you paid in
-    p Bill Amount:  #{bill.billAmount} #{bill.currencyFrom}  
-    p Tip Percentage: #{bill.tipPercentage}%
-    p Tip Amount:  #{bill.tip} #{bill.currencyFrom}
-    p Total including tip:  #{bill.total} #{bill.currencyFrom}
+    p Bill Amount:  #{bill.billAmount} #{bill.currencyFrom}
+    if bill.tip > 0  
+      p Tip Percentage: #{bill.tipPercentage}%
+      p Tip Amount:  #{bill.tip} #{bill.currencyFrom}
+      p Total including tip:  #{bill.total} #{bill.currencyFrom}
     if bill.totalPaid 
       p Total paid:  #{bill.totalPaid} #{bill.currencyFrom}
-    h3 Per person 
-    p No of people: #{bill.people}
-    p Bill per person:  #{bill.billPerPerson} #{bill.currencyFrom}
-    p Tip per person: #{bill.tipPerPerson} #{bill.currencyFrom}
-    p Total per person:  #{bill.totalPerPerson} #{bill.currencyFrom}
+    if bill.people 
+      h3 Per person
+      p No of people: #{bill.people}
+      p Bill per person:  #{bill.billPerPerson} #{bill.currencyFrom}
+      p Tip per person: #{bill.tipPerPerson} #{bill.currencyFrom}
+      p Total per person:  #{bill.totalPerPerson} #{bill.currencyFrom}
     
   .currencyTo
     if bill.convBillAmount && bill.convBillAmount !== bill.BillAmount
@@ -23,8 +25,9 @@ block main
       p Converted Total: #{bill.convTotal} #{bill.currencyTo}
       if bill.convTotalPaid
         p Converted Total paid: #{bill.convTotalPaid} #{bill.currencyTo}
-      h3 Per person  
-      p Converted Bill per person: #{bill.convBillPerPerson} #{bill.currencyTo}
-      p Converted Tip per person: #{bill.convTipPerPerson} #{bill.currencyTo}
-      p Converted Total per person: #{bill.convTotalPerPerson} #{bill.currencyTo}
+      if bill.people  
+        h3 Per person  
+        p Converted Bill per person: #{bill.convBillPerPerson} #{bill.currencyTo}
+        p Converted Tip per person: #{bill.convTipPerPerson} #{bill.currencyTo}
+        p Converted Total per person: #{bill.convTotalPerPerson} #{bill.currencyTo}
          
