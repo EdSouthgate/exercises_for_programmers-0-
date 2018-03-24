@@ -1,13 +1,30 @@
 var expect = require('chai').expect;
 const bill = require('../middleware/tip_calculator.js').bill;
-const getExchangeRate = require('../middleware/index.js').getExchangeRate;
-const getCurrencyInfo = require('../middleware/index.js').getCurrencyInfo;
-const getDecimalPlaces = require('../middleware/index.js').getDecimalPlaces;
 // test suite
 describe('Mocha', function() {
   //Test spec (unit test)
   it('should run our tests using npm', function(){
     expect(true).to.be.ok;
+  });
+});
+
+describe('bill.create', function() {
+  it('should take an object containing the keys currency from, currencyTo, bill amount tip amount value and a number of people and create a bill object with those values', function() {
+    const myBill = {
+      currencyTo: "HUF",
+      currencyFrom: "GBP",
+      billAmount: 100,
+      people: 3
+    };
+
+    const myNewBill = bill.create(myBill);
+
+    expect(myNewBill).to.deep.equal({
+      currencyTo: "HUF",
+      currencyFrom: "GBP",
+      billAmount: 100,
+      people: 3
+    });
   });
 });
 
@@ -83,7 +100,8 @@ describe('bill.splitBill', function() {
         total: 110,
         billPerPerson: 20,
         tipPerPerson: 2,
-        totalPerPerson: 22
+        totalPerPerson: 22,
+        decimalPlaces: 2
       })
     });
 
@@ -102,7 +120,8 @@ describe('bill.splitBill', function() {
         total: 110,
         billPerPerson: 20,
         tipPerPerson: 2,
-        totalPerPerson: 22
+        totalPerPerson: 22,
+        decimalPlaces: 2
       })
     });
 
@@ -144,7 +163,260 @@ describe('bill.splitBill', function() {
       expect(bill.splitBill({billAmount: 100})).to.be.an('error');
       expect(bill.splitBill({tipPercentage: 100})).to.be.an('error');
     });
+
+    it('should round up the bill per person in order to avoid short fall in bill',
+      function() {
+        const myBill = {
+            billAmount: 100,
+            tipPercentage: 10,
+            tip: 10, total: 110,
+            people: 3
+          };
+        bill.splitBill(myBill);
+        expect(myBill.billPerPerson).to.equal(33.34);
+      });
+
+      it('should set a new key called amountPaid giving the total paid when rounding', function() {
+        const myBill = {
+            billAmount: 100,
+            tipPercentage: 10,
+            tip: 10, total: 110,
+            people: 3
+          };
+        bill.splitBill(myBill);
+        expect(myBill).to.deep.equal({
+          billAmount: 100,
+          tipPercentage: 10,
+          tip: 10,
+          people: 3,
+          total: 110,
+          billPerPerson: 33.34,
+          decimalPlaces: 2,
+          tipPerPerson: 3.33,
+          totalPerPerson: 36.67,
+          amountPaid: 100.02
+        });
+      });
+
+      it('should not split the bill if the people key < 1', function() {
+        const myBill = {
+          billAmount: 100,
+          tipPercentage: 10,
+          tip: 10, total: 110,
+          people: 0
+        };
+
+        bill.splitBill(myBill);
+
+        expect(myBill).to.deep.equal({
+                    billAmount: 100,
+                    tipPercentage: 10,
+                    tip: 10, total: 110,
+                    people: 1,
+                    decimalPlaces: 2
+                  });
+
+
+      });
 });
+
+describe('bill.convert', function () {
+  it('should take an object with a currencyFrom key and a currencyTo key and convert the bill using the exchangeRate key.', function () {
+      var myBill = {
+        currencyFrom: "GBP",
+        currencyTo: "HUF",
+        billAmount: 100,
+        tip: 10,
+        people: 5,
+        total: 110,
+        billPerPerson: 20,
+        tipPerPerson: 2,
+        totalPerPerson: 22,
+        decimalPlaces: 2,
+        exchangeRate: 2.5
+      };
+      bill.convert(myBill);
+      expect(myBill.convBillAmount).to.equal(250);
+      expect(myBill.convTip).to.equal(25);
+      expect(myBill.convTotal).to.equal(275);
+      expect(myBill.convBillPerPerson).to.equal(50);
+      expect(myBill.convTipPerPerson).to.equal(5);
+  });
+
+  it('should be able to take numbers as strings as well as number types', function() {
+    var myBill = {
+      currencyFrom: "GBP",
+      currencyTo: "HUF",
+      billAmount: '100',
+      tip: '10',
+      people: '5',
+      total: '110',
+      billPerPerson: '20',
+      tipPerPerson: '2',
+      totalPerPerson: '22',
+      decimalPlaces: '2',
+      exchangeRate: '2.5'
+    };
+    bill.convert(myBill);
+    expect(myBill.convBillAmount).to.equal(250);
+    expect(myBill.convTip).to.equal(25);
+    expect(myBill.convTotal).to.equal(275);
+    expect(myBill.convBillPerPerson).to.equal(50);
+    expect(myBill.convTipPerPerson).to.equal(5);
+  });
+
+  it('should return an error if no exchange rate key is provided', function() {
+    const myBill = {
+      currencyFrom: "GBP",
+      currencyTo: "HUF",
+      billAmount: 100,
+      tip: 10,
+      people: 5,
+      total: 110,
+      billPerPerson: 20,
+      tipPerPerson: 2,
+      totalPerPerson: 22,
+      decimalPlaces: 2,
+    };
+
+    expect(bill.convert(myBill)).to.be.an('error');
+  });
+
+  it('should return an error if billAmount, tip or total are not numbers', function() {
+    const myBill1 = {
+      currencyFrom: "GBP",
+      currencyTo: "HUF",
+      billAmount: 'one hundred',
+      tip: 10,
+      people: 5,
+      total: 110,
+      billPerPerson: 20,
+      tipPerPerson: 2,
+      totalPerPerson: 22,
+      decimalPlaces: 2,
+      exchangeRate: 2.5
+    };
+
+    const myBill2 = {
+      currencyFrom: "GBP",
+      currencyTo: "HUF",
+      billAmount: 100,
+      tip: 'ten',
+      people: 5,
+      total: 110,
+      billPerPerson: 20,
+      tipPerPerson: 2,
+      totalPerPerson: 22,
+      decimalPlaces: 2,
+      exchangeRate: 2.5
+    };
+
+    const myBill3 = {
+      currencyFrom: "GBP",
+      currencyTo: "HUF",
+      billAmount: 100,
+      tip: 10,
+      people: 5,
+      total: 'one hundred and ten',
+      billPerPerson: 20,
+      tipPerPerson: 2,
+      totalPerPerson: 22,
+      decimalPlaces: 2,
+      exchangeRate: 2.5
+    };
+
+    expect(bill.convert(myBill1)).to.be.an('error');
+    expect(bill.convert(myBill2)).to.be.an('error');
+    expect(bill.convert(myBill3)).to.be.an('error');
+  });
+
+  it('should still convert the bill if there is no billPerPerson, tipPerPerson or totalPerPerson is provided', function() {
+    var myBill = {
+      currencyFrom: "GBP",
+      currencyTo: "HUF",
+      billAmount: 100,
+      tip: 10,
+      people: 5,
+      total: 110,
+      decimalPlaces: 2,
+      exchangeRate: 2.5
+    };
+
+    bill.convert(myBill);
+    expect(myBill.convBillAmount).to.equal(250);
+    expect(myBill.convTip).to.equal(25);
+    expect(myBill.convTotal).to.equal(275);
+  });
+});
+
+describe('bill.round', function() {
+  it('should round currencies to the appropriate number of decimal places', function() {
+      const myBill = {
+                      currencyFrom: 'GBP',
+                      currencyTo: 'HUF',
+                      billAmount: 100,
+                      tipPercentage: 10,
+                      people: 3,
+                      tip: 10,
+                      total: 110,
+                      billPerPerson: 33.34,
+                      tipPerPerson: 3.3333333333,
+                      totalPerPerson: 36.6733333333,
+                      totalPaid: 100.02,
+                      exchangeRate: 350.19,
+                      convBillAmount: 35019,
+                      convTip: 3501.9,
+                      convTotal: 38520.9,
+                      convBillPerPerson: 11675.3346,
+                      convTipPerPerson: 1167.3,
+                      convTotalPerPerson: 12842.6346,
+                      convTotalPaid: 35036.0038,
+                      currencyFromPlaces: 2,
+                      currencyToPlaces: 0
+                    };
+
+
+
+      bill.round(myBill);
+      expect(myBill.billAmount).to.equal('100.00');
+      expect(myBill.tip).to.equal('10.00');
+      expect(myBill.total).to.equal('110.00');
+      expect(myBill.totalPerPerson).to.equal('36.68');
+      expect(myBill.billPerPerson).to.equal('33.34');
+      expect(myBill.tipPerPerson).to.equal('3.33');
+      expect(myBill.convTotalPerPerson).to.equal('12843');
+      expect(myBill.totalPaid).to.equal('100.02');
+      expect(myBill.convBillAmount).to.equal('35019');
+      expect(myBill.convTip).to.equal('3502');
+      expect(myBill.convTotal).to.equal('38521');
+      expect(myBill.convBillPerPerson).to.equal('11675');
+      expect(myBill.convTipPerPerson).to.equal('1167');
+      expect(myBill.convTotalPaid).to.equal('35036');
+  });
+});
+
+describe('bill.getCurrencyInfo', function() {
+  it('should return an object containing information about currencies', function(done) {
+    const currencyInfo = bill.getCurrencyInfo();
+    done();
+    expect(currencyInfo).to.be.an('object');
+  });
+});
+
+describe('bill.getExchangeRate', function(done) {
+  it('should take two currency values as iso codes and set the exchange rate key of Bill object to a number', function(done) {
+    const exchangeRate = bill.getExchangeRate({currencyFrom: 'GBP', currencyTo: 'USD'});
+    done();
+    expect(exchangeRate).to.be.a('number');
+  })
+  it('should return an error if the values entered are not currency ISO values', function(done) {
+    done();
+    expect(bill.getExchangeRate('pounds', 'dollars')).to.be.an('error');
+  })
+});
+
+
+
 
 // describe('Bill.calculateTip', function() {
 //
