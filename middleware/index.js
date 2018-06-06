@@ -1,26 +1,26 @@
 const http = require('http');
 
-function getExchangeRate(currencyFrom, currencyTo) {
-  currencyFrom = currencyFrom.slice(0, 3);
-  currencyTo = currencyTo.slice(0, 3);
-  return new Promise(function(resolve, reject) {
-    const exchangeRateRequest = http.get(`http://api.fixer.io/latest?base=${currencyFrom}`, response => {
-      let body = "";
-      response.on('data', data => {
-        body += data.toString();
-      });
-      response.on('end', () => {
-        const exchangeRates = JSON.parse(body);
-        if(exchangeRates.error) {
-          reject(new Error('Exchange rate request failed'));
-        } else {
-          const exchangeRate = exchangeRates.rates[currencyTo];
-          resolve(exchangeRate);
-        }
-      })
-    });
-  });
-}
+// function getExchangeRate(currencyFrom, currencyTo) {
+//   currencyFrom = currencyFrom.slice(0, 3);
+//   currencyTo = currencyTo.slice(0, 3);
+//   return new Promise(function(resolve, reject) {
+//     const exchangeRateRequest = http.get(`http://api.fixer.io/latest?base=${currencyFrom}`, response => {
+//       let body = "";
+//       response.on('data', data => {
+//         body += data.toString();
+//       });
+//       response.on('end', () => {
+//         const exchangeRates = JSON.parse(body);
+//         if(exchangeRates.error) {
+//           reject(new Error('Exchange rate request failed'));
+//         } else {
+//           const exchangeRate = exchangeRates.rates[currencyTo];
+//           resolve(exchangeRate);
+//         }
+//       })
+//     });
+//   });
+// }
 
 function getCurrencyInfo(currencyFrom, currencyTo) {
   return new Promise(function(resolve, reject) {
@@ -62,6 +62,6 @@ function getDecimalPlaces(targetCurrency, currencyInfo) {
   return decimalPlaceInfo;
 }
 
-module.exports.getExchangeRate = getExchangeRate;
+// module.exports.getExchangeRate = getExchangeRate;
 module.exports.getCurrencyInfo = getCurrencyInfo;
 module.exports.getDecimalPlaces = getDecimalPlaces;

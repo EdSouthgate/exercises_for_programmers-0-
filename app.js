@@ -2,8 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
-const Bill = require('./tip_calculator/tip_calculator_methods.js').Bill;
-const getExchangeRate = require('./middleware/index.js').getExchangeRate;
+const bill = require('./middleware/tip_calculator.js').bill;
 const getCurrencyInfo = require('./middleware/index.js').getCurrencyInfo;
 const getDecimalPlaces = require('./middleware/index.js').getDecimalPlaces;
 
@@ -30,25 +29,73 @@ app.use((req, res, next) => {
 });
 
 app.use('/result', (req, res, next) => {
-  const bill = new Bill(req.body);
-  getExchangeRate(bill.currencyFrom, bill.currencyTo)
-      .then((value) => {
-        bill.exchangeRate = value;
-      })
-      .then(function(){
-        const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
-        bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
-        bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
-        bill.calculateTip();
-        bill.calculateTotalPlusTip();
-        bill.splitBill();
-        bill.convertBill();
-        bill.roundBill();
-        res.locals.bill = bill;
+  let myBill = bill.create(req.body);
+  let currencyInfo = res.locals.currencyInfo;
+  console.log(myBill);
+  bill.getExchangeRate(myBill)
+      .then((data) => {
+        res.locals.bill = myBill;
+        res.locals.currencyInfo = currencyInfo;
         next();
-      }).catch((err) => {
-        next(err);
       })
+      .catch((error) => {
+        next(error);
+      });
+  // const bill = new Bill(req.body);
+  // getExchangeRate(bill.currencyFrom, bill.currencyTo)
+  //     .then((value) => {
+  //       bill.exchangeRate = value;
+  //     })
+  //     .then(function(){
+  //       const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
+  //       bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
+  //       bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
+  //       bill.calculateTip();
+  //       bill.calculateTotalPlusTip();
+  //       bill.splitBill();
+  //       bill.convertBill();
+  //       bill.roundBill();
+  //       res.locals.bill = bill;
+  //       next();
+  //     }).catch((err) => {
+  //       next(err);
+  //     })
+});
+
+app.use('/result', (req, res, next) => {
+  let myBill = res.locals.bill;
+  let currencyInfo = res.locals.currencyInfo
+  const decimalPlaceInfo = getDecimalPlaces(myBill, currencyInfo);
+       myBill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
+       myBill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
+       bill.calculateTip(myBill);
+       bill.calculateTotalPlusTip(myBill);
+       bill.splitBill(myBill);
+       bill.convertBill(myBill);
+       bill.roundBill(myBill);
+       res.locals.bill = myBill;
+       console.log(myBill);
+       next();
+  next();
+  // const bill = new Bill(req.body);
+  // getExchangeRate(bill.currencyFrom, bill.currencyTo)
+  //     .then((value) => {
+  //       bill.exchangeRate = value;
+  //     })
+  //     .then(function(){
+  //       const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
+  //       bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
+  //       bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
+  //       bill.calculateTip();
+  //       bill.calculateTotalPlusTip();
+  //       bill.splitBill();
+  //       bill.convertBill();
+  //       bill.roundBill();
+  //       res.locals.bill = bill;
+  //       next();
+  //     }).catch((err) => {
+  //       next(err);
+  //     })
 });
 
 
