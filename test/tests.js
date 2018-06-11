@@ -9,12 +9,13 @@ describe('Mocha', function() {
 });
 
 describe('bill.create', function() {
-  it('should take an object containing the keys currency from, currencyTo, bill amount tip amount value and a number of people and create a bill object with those values', function() {
+  it('should take an object containing the keys currency from, currencyTo, bill amount tip percentage value and a number of people and create a bill object with those values', function() {
     const myBill = {
       currencyTo: "HUF",
       currencyFrom: "GBP",
       billAmount: 100,
-      people: 3
+      people: 3,
+      tipPercentage: 10
     };
 
     const myNewBill = bill.create(myBill);
@@ -23,7 +24,8 @@ describe('bill.create', function() {
       currencyTo: "HUF",
       currencyFrom: "GBP",
       billAmount: 100,
-      people: 3
+      people: 3,
+      tipPercentage: 10
     });
   });
 });
@@ -42,16 +44,16 @@ describe('bill.calculateTip', function() {
       expect(myBill).to.deep.equal({billAmount: 100, tipPercentage: 10, tip: 10});
   });
 
-  it('should return an error if there is no billAmount or tipPercentage in the object passed in', function(){
-    expect(bill.calculateTip({})).to.be.an('error');
-    expect(bill.calculateTip({billAmount: 100})).to.be.an('error');
-    expect(bill.calculateTip({tipPercentage: 100})).to.be.an('error');
+  it('should throw an error if there is no billAmount or tipPercentage in the object passed in', function(){
+    expect(bill.calculateTip.bind(bill.calculateTip, {})).to.throw();
+    expect(bill.calculateTip.bind(bill.calculateTip, {billAmount: 100})).to.throw();
+    expect(bill.calculateTip.bind(bill.calculateTip, {tipPercentage: 100})).to.throw();
   });
 
   it('should return an error if the input is not a number', function() {
-    expect(bill.calculateTip({billAmount: 'twenty pounds', tipPercentage: 'fifteen percent'})).to.be.an('error');
-    expect(bill.calculateTip({billAmount: 20, tipPercentage: 'fifteen percent'})).to.be.an('error');
-    expect(bill.calculateTip({billAmount: 'twenty pounds', tipPercentage: 15})).to.be.an('error');
+    expect(bill.calculateTip.bind(bill.calculateTip, {billAmount: 'twenty pounds', tipPercentage: 'fifteen percent'})).to.throw();
+    expect(bill.calculateTip.bind(bill.calculateTip, {billAmount: 20, tipPercentage: 'fifteen percent'})).to.throw();
+    expect(bill.calculateTip.bind(bill.calculateTip, {billAmount: 'twenty pounds', tipPercentage: 15})).to.throw();
   })
 });
 
@@ -69,15 +71,15 @@ describe('bill.calculateTotalPlusTip', function() {
   });
 
   it('should return an error if either either the billAmount or tipPercentage is not a number', function() {
-    expect(bill.calculateTotalPlusTip({billAmount: 'twenty pounds', tipPercentage: 'fifteen percent'})).to.be.an('error');
-    expect(bill.calculateTotalPlusTip({billAmount: 20, tipPercentage: 'fifteen percent'})).to.be.an('error');
-    expect(bill.calculateTotalPlusTip({billAmount: 'twenty pounds', tipPercentage: 15})).to.be.an('error');
+    expect(bill.calculateTotalPlusTip.bind(bill.calculateTotalPlusTip, {billAmount: 'twenty pounds', tipPercentage: 'fifteen percent'})).to.throw();
+    expect(bill.calculateTotalPlusTip.bind(bill.calculateTotalPlusTip, {billAmount: 20, tipPercentage: 'fifteen percent'})).to.throw();
+    expect(bill.calculateTotalPlusTip.bind(bill.calculateTotalPlusTip, {billAmount: 'twenty pounds', tipPercentage: 15})).to.throw();
   });
 
   it('should return an error if there is no billAmount or tipPercentage in the object passed in', function(){
-    expect(bill.calculateTotalPlusTip({})).to.be.an('error');
-    expect(bill.calculateTotalPlusTip({billAmount: 100})).to.be.an('error');
-    expect(bill.calculateTotalPlusTip({tipPercentage: 100})).to.be.an('error');
+    expect(bill.calculateTotalPlusTip.bind(bill.calculateTotalPlusTip, {})).to.throw();
+    expect(bill.calculateTotalPlusTip.bind(bill.calculateTotalPlusTip, {billAmount: 100})).to.throw();
+    expect(bill.calculateTotalPlusTip.bind(bill.calculateTotalPlusTip, {tipPercentage: 100})).to.throw();
   });
 
 });
@@ -152,16 +154,16 @@ describe('bill.splitBill', function() {
       };
 
 
-      expect(bill.splitBill(myBill1)).to.be.an('error');
-      expect(bill.splitBill(myBill2)).to.be.an('error');
-      expect(bill.splitBill(myBill3)).to.be.an('error');
-      expect(bill.splitBill(myBill4)).to.be.an('error');
+      expect(bill.splitBill.bind(bill.splitBill, myBill1)).to.throw();
+      expect(bill.splitBill.bind(bill.splitBill, myBill2)).to.throw();
+      expect(bill.splitBill.bind(bill.splitBill, myBill3)).to.throw();
+      expect(bill.splitBill.bind(bill.splitBill, myBill4)).to.throw();
     });
 
     it('should return an error if there is no billAmount, total, tip or people key in the object passed in', function(){
-      expect(bill.splitBill({})).to.be.an('error');
-      expect(bill.splitBill({billAmount: 100})).to.be.an('error');
-      expect(bill.splitBill({tipPercentage: 100})).to.be.an('error');
+      expect(bill.splitBill.bind(bill.splitBill, {})).to.throw();
+      expect(bill.splitBill.bind(bill.splitBill, {billAmount: 100})).to.throw();
+      expect(bill.splitBill.bind(bill.splitBill, {tipPercentage: 100})).to.throw();
     });
 
     it('should round up the bill per person in order to avoid short fall in bill',
@@ -279,7 +281,7 @@ describe('bill.convert', function () {
       decimalPlaces: 2,
     };
 
-    expect(bill.convert(myBill)).to.be.an('error');
+    expect(bill.convert.bind(bill.convert, myBill)).to.throw();
   });
 
   it('should return an error if billAmount, tip or total are not numbers', function() {
@@ -325,9 +327,9 @@ describe('bill.convert', function () {
       exchangeRate: 2.5
     };
 
-    expect(bill.convert(myBill1)).to.be.an('error');
-    expect(bill.convert(myBill2)).to.be.an('error');
-    expect(bill.convert(myBill3)).to.be.an('error');
+    expect(bill.convert.bind(bill.convert, myBill1)).to.throw();
+    expect(bill.convert.bind(bill.convert, myBill2)).to.throw();
+    expect(bill.convert.bind(bill.convert, myBill3)).to.throw();
   });
 
   it('should still convert the bill if there is no billPerPerson, tipPerPerson or totalPerPerson is provided', function() {
@@ -408,11 +410,47 @@ describe('bill.getExchangeRate', function(done) {
     const exchangeRate = bill.getExchangeRate({currencyFrom: 'GBP', currencyTo: 'USD'});
     done();
     expect(exchangeRate).to.be.a('number');
-  })
+  });
   it('should return an error if the values entered are not currency ISO values', function(done) {
     done();
     expect(bill.getExchangeRate('pounds', 'dollars')).to.be.an('error');
-  })
+  });
+});
+
+describe('bill.getDecimalPlaces', function() {
+  it('take an object containing two currency ISO codes and return an object containing the number of decimal places from the currencyInfo object', function() {
+    const currencyInfo = {
+                            "GBP": {
+                                "symbol": "£",
+                                "name": "British Pound Sterling",
+                                "symbol_native": "£",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "GBP",
+                                "name_plural": "British pounds sterling"
+                            },
+                            "HRK": {
+                                "symbol": "kn",
+                                "name": "Croatian Kuna",
+                                "symbol_native": "kn",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "HRK",
+                                "name_plural": "Croatian kunas"
+                            },
+                            "HUF": {
+                                "symbol": "Ft",
+                                "name": "Hungarian Forint",
+                                "symbol_native": "Ft",
+                                "decimal_digits": 0,
+                                "rounding": 0,
+                                "code": "HUF",
+                                "name_plural": "Hungarian forints"
+                            }
+                          }
+
+    expect(bill.getDecimalPlaces({currencyFrom: 'GBP', currencyTo: 'HUF'}, currencyInfo)).to.deep.equal({currencyFromPlaces: 2, currencyToPlaces: 0});
+  });
 });
 
 

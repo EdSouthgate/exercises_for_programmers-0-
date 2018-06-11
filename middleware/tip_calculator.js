@@ -9,6 +9,7 @@ const bill = (function () {
     that.currencyFrom = spec.currencyFrom;
     that.currencyTo = spec.currencyTo;
     that.billAmount = spec.billAmount;
+    that.tipPercentage = spec.tipPercentage;
     that.people = spec.people || 1;
     return that;
   }
@@ -31,11 +32,11 @@ const bill = (function () {
   const calculateTip = function (bill) {
     //validate input
     if(!bill.billAmount && !bill.tipPercentage) {
-      return throwError({message: "Bill amount and tip percentage not provided", code: 500});
+      throw new Error("Bill amount and tip percentage not provided");
     } else if (!bill.billAmount) {
-      return throwError({message: "Bill amount not provided", code: 500});
+      throw new Error("Bill amount not provided");
     } else if (!bill.tipPercentage) {
-      return throwError({message: "Tip percentage not provided", code: 500});
+      throw new Error("Tip percentage not provided");
     } else {
       //perform function
       bill.billAmount = parseFloat(bill.billAmount);
@@ -43,7 +44,7 @@ const bill = (function () {
       let tipAmount = (bill.billAmount / 100 * bill.tipPercentage);
       tipAmount = parseFloat(tipAmount);
       if(Number.isNaN(tipAmount)) {
-        return throwError({message: "Input is not a number", code: 500});
+        throw new Error({message: "Input is not a number", code: 500});
       } else {
         bill.tip = tipAmount;
       }
@@ -52,19 +53,19 @@ const bill = (function () {
 
   const calculateTotalPlusTip = function(bill) {
     if(!bill.billAmount && !bill.tipPercentage) {
-      return throwError({message: "Bill amount and tip percentage not provided", code: 500});
+      throw new Error("Bill amount and tip percentage not provided");
     } else if (!bill.billAmount) {
-      return throwError({message: "Bill amount not provided", code: 500});
+      throw new Error("Bill amount not provided");
     } else if (!bill.tipPercentage) {
-      return throwError({message: "Tip percentage not provided", code: 500});
+      throw new Error("Tip percentage not provided");
     } else {
-    bill.billAmount = parseFloat(bill.billAmount);
-    bill.tipPercentage = parseFloat(bill.tipPercentage);
-    let total = (bill.billAmount / 100 * (100 + bill.tipPercentage))
-    if(Number.isNaN(total)) {
-      return throwError({message: "Input is not a number", code: 500});
-    }
-    bill.total = total;
+      bill.billAmount = parseFloat(bill.billAmount);
+      bill.tipPercentage = parseFloat(bill.tipPercentage);
+      let total = (bill.billAmount / 100 * (100 + bill.tipPercentage))
+      if(Number.isNaN(total)) {
+        throw new Error("Input is not a number");
+      }
+      bill.total = total;
     }
   }
 
@@ -81,7 +82,7 @@ const bill = (function () {
       let tipPerPerson = divide(bill.tip, bill.people);
       let totalPerPerson = divide(bill.total, bill.people);
       if(Number.isNaN(billPerPerson) || Number.isNaN(tipPerPerson) || Number.isNaN(totalPerPerson)) {
-        return throwError({message: "Input is not a number", code: 500})
+        throw new Error("Input is not a number");
       } else {
         if(!bill.people || bill.people < 1) {
           bill.people = 1;
@@ -104,12 +105,12 @@ const bill = (function () {
 
   const convert = function (bill) {
     if(!bill.exchangeRate) {
-      return throwError({message: "No exchange rate provided", code: 500});
+      throw new Error("No exchange rate provided");
     }
     if(bill.currencyFrom && bill.currencyTo && bill.currencyFrom !== bill.currencyTo) {
       let convBillAmount = parseFloat(bill.billAmount) * parseFloat(bill.exchangeRate);
       if(Number.isNaN(convBillAmount)) {
-        return throwError({message: "Bill amount is not a number", code: 500});
+        throw new Error("Bill amount is not a number");
       } else {
         bill.convBillAmount = parseFloat(convBillAmount);
       }
@@ -117,14 +118,14 @@ const bill = (function () {
 
       let convTip = parseFloat(bill.tip) * parseFloat(bill.exchangeRate);
       if(Number.isNaN(convTip)) {
-        return throwError({message: "Tip amount is not a number", code: 500});
+        throw new Error("Tip amount is not a number");
       } else {
         bill.convTip = parseFloat(convTip);
       }
 
       let convTotal = parseFloat(bill.total) * parseFloat(bill.exchangeRate);
       if(Number.isNaN(convTotal)) {
-        return throwError({message: "Bill amount is not a number", code: 500});
+        throw new Error("Bill amount is not a number");
       } else {
           bill.convTotal = parseFloat(convTotal);
       }
@@ -139,20 +140,18 @@ const bill = (function () {
         bill.convTipPerPerson = parseFloat(convTipPerPerson);
       }
 
-      if(bill.convTotalPerPerson) {
+      if(bill.totalPerPerson) {
         let convTotalPerPerson = parseFloat(bill.totalPerPerson) * parseFloat(bill.exchangeRate);
         bill.convTotalPerPerson = parseFloat(convTotalPerPerson);
       }
 
 
-      if(bill.totalPaid) {
-        let convTotalPaid = parseFloat(bill.totalPaid) * parseFloat(bill.exchangeRate);
-        bill.convTotalPaid = parseFloat(convTotalPaid);
+      if(bill.amountPaid) {
+        let convAmountPaid = parseFloat(bill.amountPaid) * parseFloat(bill.exchangeRate);
+        bill.convAmountPaid = parseFloat(convAmountPaid);
       }
     } else {
-      const err = new Error('Incorrect input for convert bill function');
-      err.status = 500;
-      return err;
+      throw new Error("Currency from cannot equal currency to");
     }
   }
 
@@ -160,10 +159,10 @@ const bill = (function () {
     for(var key in bill) {
       if(typeof bill[key] === "number") {
         if( key === "billAmount" || key == "total" || key === "billPerPerson" ||
-            key === "tipPerPerson" || key === "totalPaid" || key === "tip") {
+            key === "tipPerPerson" || key === "amountPaid" || key === "tip") {
         bill[key] = (bill[key]).toFixed(bill.currencyFromPlaces);
-      } else if (key === "convBillAmount" || key == "convTotal" || key === "convBillPerPerson" ||
-          key === "convTipPerPerson" || key === "convTotalPaid" || key === "convTip" || key === "convTotalPerPerson") {
+      } else if (key=== "totalPerPerson", key === "convBillAmount" || key == "convTotal" || key === "convBillPerPerson" ||
+          key === "convTipPerPerson" || key === "convAmountPaid" || key === "convTip" || key === "convTotalPerPerson") {
           bill[key] = (bill[key]).toFixed(bill.currencyToPlaces);
         } else if (key === "totalPerPerson") {
           bill[key] = roundUp(bill[key], bill.currencyFromPlaces);
@@ -174,7 +173,7 @@ const bill = (function () {
 
   }
 
-  const getCurrencyInfo = function (bill) {
+  const getCurrencyInfo = function () {
     return new Promise(function(resolve, reject) {
       const currencyInfoRequest = http.get(`http://www.localeplanet.com/api/auto/currencymap.json?name=Y`, response => {
         let body = "";
@@ -200,10 +199,11 @@ const bill = (function () {
   }
 
   const getExchangeRate = function (bill) {
-    currencyFrom = bill.currencyFrom.slice(0, 3);
-    currencyTo = bill.currencyTo.slice(0, 3);
+    bill.currencyFrom = bill.currencyFrom.slice(0, 3);
+    bill.currencyTo = bill.currencyTo.slice(0, 3);
+
     return new Promise(function(resolve, reject) {
-      const exchangeRateRequest = http.get(`http://api.fixer.io/latest?base=${currencyFrom}`, response => {
+      const exchangeRateRequest = http.get(`http://free.currencyconverterapi.com/api/v5/convert?q=${bill.currencyFrom}_${bill.currencyTo}&compact=y`, response => {
         let body = "";
         response.on('data', data => {
           body += data.toString();
@@ -211,15 +211,41 @@ const bill = (function () {
         response.on('end', () => {
           const exchangeRates = JSON.parse(body);
           if(exchangeRates.error) {
+            console.dir(exchangeRates);
             reject(new Error('Exchange rate request failed'));
           } else {
-            const exchangeRate = exchangeRates.rates[currencyTo];
+            const exchangeRate = exchangeRates[bill.currencyFrom + "_" + bill.currencyTo]['val'];
             resolve(exchangeRate);
           }
         })
-      });
-    }).catch((err) => throwError(err));
+      })
+      .on('error', error => {
+        reject(error);
+      })
+    })
   }
+
+  const getDecimalPlaces = function(targetCurrency, currencyInfo) {
+    var decimalPlaceInfo = {};
+    for(var index in currencyInfo) {
+      if(currencyInfo.hasOwnProperty(index)) {
+        if(targetCurrency.currencyFrom === index) {
+          decimalPlaceInfo.currencyFromPlaces = currencyInfo[index].decimal_digits;
+          console.log("currencyFrom = " + decimalPlaceInfo.currencyFromPlaces);
+        } else {
+          decimalPlaceInfo.currencyFromPlaces = 2;
+        }
+        if(targetCurrency.currencyTo === index) {
+          decimalPlaceInfo.currencyToPlaces = currencyInfo[index].decimal_digits;
+          console.log("currencyTo = " + decimalPlaceInfo.currencyToPlaces);
+        } else {
+          decimalPlaceInfo.currencyFromPlaces = 2;
+        }
+      }
+    }
+    return decimalPlaceInfo;
+  }
+
   // return public methods
   return {
     create: create,
@@ -229,7 +255,8 @@ const bill = (function () {
     convert: convert,
     round: round,
     getCurrencyInfo: getCurrencyInfo,
-    getExchangeRate: getExchangeRate
+    getExchangeRate: getExchangeRate,
+    getDecimalPlaces: getDecimalPlaces
   }
 
 })()

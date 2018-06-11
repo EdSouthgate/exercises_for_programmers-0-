@@ -26,9 +26,11 @@ function getCurrencyInfo(currencyFrom, currencyTo) {
   return new Promise(function(resolve, reject) {
     const currencyInfoRequest = http.get(`http://www.localeplanet.com/api/auto/currencymap.json?name=Y`, response => {
       let body = "";
+
       response.on('data', data => {
         body += data.toString();
       });
+
       response.on('end', () => {
         const currencyInfo = JSON.parse(body);
         const supportedCurrencies = ['AUD','BGN','BRL','CAD','CHF','CNY','CZK','DKK',
@@ -43,6 +45,8 @@ function getCurrencyInfo(currencyFrom, currencyTo) {
          }
          resolve(currenciesToReturn);
       })
+    }).on('error', (error) => {
+      reject(error);
     });
   });
 }
@@ -53,9 +57,11 @@ function getDecimalPlaces(targetCurrency, currencyInfo) {
     if(currencyInfo.hasOwnProperty(index)) {
       if(targetCurrency.currencyFrom === index) {
         decimalPlaceInfo.currencyFromPlaces = currencyInfo[index].decimal_digits;
+        console.log("currencyFrom")
       }
       if(targetCurrency.currencyTo === index) {
         decimalPlaceInfo.currencyToPlaces = currencyInfo[index].decimal_digits;
+        console.log("currencyTo")
       }
     }
   }
