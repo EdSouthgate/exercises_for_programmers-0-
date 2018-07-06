@@ -605,4 +605,65 @@ describe('bill.build', function() {
       currencyFromPlaces: 2
     });
   });
+  it('should not convert the bill if the number of people is less than 2', function() {
+    const currencyInfo = {
+                            "GBP": {
+                                "symbol": "£",
+                                "name": "British Pound Sterling",
+                                "symbol_native": "£",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "GBP",
+                                "name_plural": "British pounds sterling"
+                            },
+                            "HRK": {
+                                "symbol": "kn",
+                                "name": "Croatian Kuna",
+                                "symbol_native": "kn",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "HRK",
+                                "name_plural": "Croatian kunas"
+                            },
+                            "HUF": {
+                                "symbol": "Ft",
+                                "name": "Hungarian Forint",
+                                "symbol_native": "Ft",
+                                "decimal_digits": 2,
+                                "rounding": 0,
+                                "code": "HUF",
+                                "name_plural": "Hungarian forints"
+                            }
+                          };
+
+    const myBill = {
+                    currencyFrom: 'GBP',
+                    currencyTo: 'HUF',
+                    billAmount: 100,
+                    tipPercentage: 10,
+                    people: 1,
+                    tip: 10,
+                    total: 110,
+                    exchangeRate: 300
+                  };
+
+    const completeBill = bill.build(myBill, currencyInfo);
+
+    expect(completeBill).to.deep.equal({
+      currencyFrom: 'GBP',
+      currencyTo: 'HUF',
+      billAmount: '100.00',
+      tipPercentage: 10,
+      people: 1,
+      tip: '10.00',
+      total: '110.00',
+      exchangeRate: 300,
+      convBillAmount: '30000.00',
+      convTip: '3000.00',
+      convTotal: '33000.00',
+      currencyFromPlaces: 2,
+      currencyToPlaces: 2,
+      convertCurrency: true
+    });
+  });
 });

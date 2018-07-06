@@ -266,7 +266,9 @@ const bill = (function () {
     }
     bill.calculateTip(obj);
     bill.calculateTotalPlusTip(obj);
+    if(obj.people > 2) {
     bill.splitBill(obj);
+    }
     if(obj.convertCurrency) {
       bill.convert(obj);
     }
