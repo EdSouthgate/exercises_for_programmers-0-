@@ -4,6 +4,18 @@
 const bill = (function () {
   const http = require('http');
 
+  const toConvert = function(obj) {
+    obj.currencyFrom = obj.currencyFrom.slice(0, 3);
+    obj.currencyTo = obj.currencyTo.slice(0, 3);
+    if(obj.currencyFrom !== obj.currencyTo) {
+      obj.convertCurrency = true;
+      return true;
+    } else {
+      obj.convertCurrency = false;
+      return false;
+    }
+  }
+
   const create = function (spec) {
     var that = {}
     that.currencyFrom = spec.currencyFrom;
@@ -11,6 +23,7 @@ const bill = (function () {
     that.billAmount = spec.billAmount;
     that.tipPercentage = spec.tipPercentage;
     that.people = spec.people || 1;
+    that.convertCurrency = toConvert(spec);
     return that;
   }
 
@@ -29,144 +42,144 @@ const bill = (function () {
     return err;
   }
 
-  const calculateTip = function (bill) {
+  const calculateTip = function (obj) {
     //validate input
-    if(!bill.billAmount && !bill.tipPercentage) {
+    if(!obj.billAmount && !obj.tipPercentage) {
       throw new Error("Bill amount and tip percentage not provided");
-    } else if (!bill.billAmount) {
+    } else if (!obj.billAmount) {
       throw new Error("Bill amount not provided");
-    } else if (!bill.tipPercentage) {
+    } else if (!obj.tipPercentage) {
       throw new Error("Tip percentage not provided");
     } else {
       //perform function
-      bill.billAmount = parseFloat(bill.billAmount);
-      bill.tipPercentage = parseFloat(bill.tipPercentage);
-      let tipAmount = (bill.billAmount / 100 * bill.tipPercentage);
+      obj.billAmount = parseFloat(obj.billAmount);
+      obj.tipPercentage = parseFloat(obj.tipPercentage);
+      let tipAmount = (obj.billAmount / 100 * obj.tipPercentage);
       tipAmount = parseFloat(tipAmount);
       if(Number.isNaN(tipAmount)) {
         throw new Error({message: "Input is not a number", code: 500});
       } else {
-        bill.tip = tipAmount;
+        obj.tip = tipAmount;
       }
     }
   }
 
-  const calculateTotalPlusTip = function(bill) {
-    if(!bill.billAmount && !bill.tipPercentage) {
+  const calculateTotalPlusTip = function(obj) {
+    if(!obj.billAmount && !obj.tipPercentage) {
       throw new Error("Bill amount and tip percentage not provided");
-    } else if (!bill.billAmount) {
+    } else if (!obj.billAmount) {
       throw new Error("Bill amount not provided");
-    } else if (!bill.tipPercentage) {
+    } else if (!obj.tipPercentage) {
       throw new Error("Tip percentage not provided");
     } else {
-      bill.billAmount = parseFloat(bill.billAmount);
-      bill.tipPercentage = parseFloat(bill.tipPercentage);
-      let total = (bill.billAmount / 100 * (100 + bill.tipPercentage))
+      obj.billAmount = parseFloat(obj.billAmount);
+      obj.tipPercentage = parseFloat(obj.tipPercentage);
+      let total = (obj.billAmount / 100 * (100 + obj.tipPercentage))
       if(Number.isNaN(total)) {
         throw new Error("Input is not a number");
       }
-      bill.total = total;
+      obj.total = total;
     }
   }
 
-  const splitBill = function(bill) {
+  const splitBill = function(obj) {
 
-      if(!bill.decimalPlaces) {
-        bill.decimalPlaces = 2;
+      if(!obj.currencyFromPlaces) {
+        obj.currencyFromPlaces = 2;
       }
-      bill.billAmount = parseFloat(bill.billAmount);
-      bill.tip = parseFloat(bill.tip);
-      bill.total = parseFloat(bill.total);
-      bill.people = parseFloat(bill.people);
-      let billPerPerson = divide(bill.billAmount, bill.people);
-      let tipPerPerson = divide(bill.tip, bill.people);
-      let totalPerPerson = divide(bill.total, bill.people);
+      obj.billAmount = parseFloat(obj.billAmount);
+      obj.tip = parseFloat(obj.tip);
+      obj.total = parseFloat(obj.total);
+      obj.people = parseFloat(obj.people);
+      let billPerPerson = divide(obj.billAmount, obj.people);
+      let tipPerPerson = divide(obj.tip, obj.people);
+      let totalPerPerson = divide(obj.total, obj.people);
       if(Number.isNaN(billPerPerson) || Number.isNaN(tipPerPerson) || Number.isNaN(totalPerPerson)) {
         throw new Error("Input is not a number");
       } else {
-        if(!bill.people || bill.people < 1) {
-          bill.people = 1;
-          return bill
+        if(!obj.people || obj.people < 1) {
+          obj.people = 1;
+          return obj
         }
-        billPerPerson = roundUp(billPerPerson, bill.decimalPlaces);
-        tipPerPerson = tipPerPerson.toFixed(bill.decimalPlaces);
-        totalPerPerson = totalPerPerson.toFixed(bill.decimalPlaces);
-        bill.billPerPerson = parseFloat(billPerPerson);
-        bill.tipPerPerson = parseFloat(tipPerPerson);
-        bill.totalPerPerson = parseFloat(totalPerPerson);
+        billPerPerson = roundUp(billPerPerson, obj.currencyFromPlaces);
+        tipPerPerson = tipPerPerson.toFixed(obj.currencyFromPlaces);
+        totalPerPerson = totalPerPerson.toFixed(obj.currencyFromPlaces);
+        obj.billPerPerson = parseFloat(billPerPerson);
+        obj.tipPerPerson = parseFloat(tipPerPerson);
+        obj.totalPerPerson = parseFloat(totalPerPerson);
 
-        let amountPaid = (bill.billPerPerson * bill.people);
-        if(amountPaid != bill.billAmount) {
-          amountPaid = amountPaid.toFixed(bill.decimalPlaces);
-          bill.amountPaid = parseFloat(amountPaid);
+        let amountPaid = (obj.billPerPerson * obj.people);
+        if(amountPaid != obj.billAmount) {
+          amountPaid = amountPaid.toFixed(obj.currencyFromPlaces);
+          obj.amountPaid = parseFloat(amountPaid);
         }
       }
   }
 
-  const convert = function (bill) {
-    if(!bill.exchangeRate) {
+  const convert = function (obj) {
+    if(!obj.exchangeRate) {
       throw new Error("No exchange rate provided");
     }
-    if(bill.currencyFrom && bill.currencyTo && bill.currencyFrom !== bill.currencyTo) {
-      let convBillAmount = parseFloat(bill.billAmount) * parseFloat(bill.exchangeRate);
+    if(obj.currencyFrom && obj.currencyTo && obj.currencyFrom !== obj.currencyTo) {
+      let convBillAmount = parseFloat(obj.billAmount) * parseFloat(obj.exchangeRate);
       if(Number.isNaN(convBillAmount)) {
         throw new Error("Bill amount is not a number");
       } else {
-        bill.convBillAmount = parseFloat(convBillAmount);
+        obj.convBillAmount = parseFloat(convBillAmount);
       }
 
 
-      let convTip = parseFloat(bill.tip) * parseFloat(bill.exchangeRate);
+      let convTip = parseFloat(obj.tip) * parseFloat(obj.exchangeRate);
       if(Number.isNaN(convTip)) {
         throw new Error("Tip amount is not a number");
       } else {
-        bill.convTip = parseFloat(convTip);
+        obj.convTip = parseFloat(convTip);
       }
 
-      let convTotal = parseFloat(bill.total) * parseFloat(bill.exchangeRate);
+      let convTotal = parseFloat(obj.total) * parseFloat(obj.exchangeRate);
       if(Number.isNaN(convTotal)) {
         throw new Error("Bill amount is not a number");
       } else {
-          bill.convTotal = parseFloat(convTotal);
+          obj.convTotal = parseFloat(convTotal);
       }
 
-      if(bill.billPerPerson) {
-        let convBillPerPerson = parseFloat(bill.billPerPerson) * parseFloat(bill.exchangeRate);
-        bill.convBillPerPerson = parseFloat(convBillPerPerson);
+      if(obj.billPerPerson) {
+        let convBillPerPerson = parseFloat(obj.billPerPerson) * parseFloat(obj.exchangeRate);
+        obj.convBillPerPerson = parseFloat(convBillPerPerson);
       }
 
-      if(bill.tipPerPerson) {
-        let convTipPerPerson = parseFloat(bill.tipPerPerson) * parseFloat(bill.exchangeRate);
-        bill.convTipPerPerson = parseFloat(convTipPerPerson);
+      if(obj.tipPerPerson) {
+        let convTipPerPerson = parseFloat(obj.tipPerPerson) * parseFloat(obj.exchangeRate);
+        obj.convTipPerPerson = parseFloat(convTipPerPerson);
       }
 
-      if(bill.totalPerPerson) {
-        let convTotalPerPerson = parseFloat(bill.totalPerPerson) * parseFloat(bill.exchangeRate);
-        bill.convTotalPerPerson = parseFloat(convTotalPerPerson);
+      if(obj.totalPerPerson) {
+        let convTotalPerPerson = parseFloat(obj.totalPerPerson) * parseFloat(obj.exchangeRate);
+        obj.convTotalPerPerson = parseFloat(convTotalPerPerson);
       }
 
 
-      if(bill.amountPaid) {
-        let convAmountPaid = parseFloat(bill.amountPaid) * parseFloat(bill.exchangeRate);
-        bill.convAmountPaid = parseFloat(convAmountPaid);
+      if(obj.amountPaid) {
+        let convAmountPaid = parseFloat(obj.amountPaid) * parseFloat(obj.exchangeRate);
+        obj.convAmountPaid = parseFloat(convAmountPaid);
       }
     } else {
       throw new Error("Currency from cannot equal currency to");
     }
   }
 
-  const round = function(bill) {
-    for(var key in bill) {
-      if(typeof bill[key] === "number") {
+  const round = function(obj) {
+    for(var key in obj) {
+      if(typeof obj[key] === "number") {
         if( key === "billAmount" || key == "total" || key === "billPerPerson" ||
             key === "tipPerPerson" || key === "amountPaid" || key === "tip") {
-        bill[key] = (bill[key]).toFixed(bill.currencyFromPlaces);
+        obj[key] = (obj[key]).toFixed(obj.currencyFromPlaces);
       } else if (key=== "totalPerPerson", key === "convBillAmount" || key == "convTotal" || key === "convBillPerPerson" ||
           key === "convTipPerPerson" || key === "convAmountPaid" || key === "convTip" || key === "convTotalPerPerson") {
-          bill[key] = (bill[key]).toFixed(bill.currencyToPlaces);
+          obj[key] = (obj[key]).toFixed(obj.currencyToPlaces);
         } else if (key === "totalPerPerson") {
-          bill[key] = roundUp(bill[key], bill.currencyFromPlaces);
-          bill[key] = String(bill[key]);
+          obj[key] = roundUp(obj[key], obj.currencyFromPlaces);
+          obj[key] = String(obj[key]);
         }
       }
     }
@@ -198,12 +211,12 @@ const bill = (function () {
     }).catch((err) => throwError(err));
   }
 
-  const getExchangeRate = function (bill) {
-    bill.currencyFrom = bill.currencyFrom.slice(0, 3);
-    bill.currencyTo = bill.currencyTo.slice(0, 3);
+  const getExchangeRate = function (obj) {
+    obj.currencyFrom = obj.currencyFrom.slice(0, 3);
+    obj.currencyTo = obj.currencyTo.slice(0, 3);
 
     return new Promise(function(resolve, reject) {
-      const exchangeRateRequest = http.get(`http://free.currencyconverterapi.com/api/v5/convert?q=${bill.currencyFrom}_${bill.currencyTo}&compact=y`, response => {
+      const exchangeRateRequest = http.get(`http://free.currencyconverterapi.com/api/v5/convert?q=${obj.currencyFrom}_${obj.currencyTo}&compact=y`, response => {
         let body = "";
         response.on('data', data => {
           body += data.toString();
@@ -214,7 +227,7 @@ const bill = (function () {
             console.dir(exchangeRates);
             reject(new Error('Exchange rate request failed'));
           } else {
-            const exchangeRate = exchangeRates[bill.currencyFrom + "_" + bill.currencyTo]['val'];
+            const exchangeRate = exchangeRates[obj.currencyFrom + "_" + obj.currencyTo]['val'];
             resolve(exchangeRate);
           }
         })
@@ -231,19 +244,34 @@ const bill = (function () {
       if(currencyInfo.hasOwnProperty(index)) {
         if(targetCurrency.currencyFrom === index) {
           decimalPlaceInfo.currencyFromPlaces = currencyInfo[index].decimal_digits;
-          console.log("currencyFrom = " + decimalPlaceInfo.currencyFromPlaces);
         } else {
           decimalPlaceInfo.currencyFromPlaces = 2;
         }
         if(targetCurrency.currencyTo === index) {
           decimalPlaceInfo.currencyToPlaces = currencyInfo[index].decimal_digits;
-          console.log("currencyTo = " + decimalPlaceInfo.currencyToPlaces);
         } else {
           decimalPlaceInfo.currencyFromPlaces = 2;
         }
       }
     }
     return decimalPlaceInfo;
+  }
+
+  const build = function(obj, currencyInfo) {
+    bill.toConvert(obj);
+    const decimalPlaceInfo = bill.getDecimalPlaces(obj, currencyInfo);
+    obj.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
+    if(obj.convertCurrency) {
+      obj.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
+    }
+    bill.calculateTip(obj);
+    bill.calculateTotalPlusTip(obj);
+    bill.splitBill(obj);
+    if(obj.convertCurrency) {
+      bill.convert(obj);
+    }
+    bill.round(obj);
+    return obj;
   }
 
   // return public methods
@@ -256,7 +284,9 @@ const bill = (function () {
     round: round,
     getCurrencyInfo: getCurrencyInfo,
     getExchangeRate: getExchangeRate,
-    getDecimalPlaces: getDecimalPlaces
+    getDecimalPlaces: getDecimalPlaces,
+    toConvert: toConvert,
+    build: build
   }
 
 })()

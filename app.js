@@ -42,57 +42,20 @@ app.use('/result', (req, res, next) => {
         console.dir(error);
         next(error);
       });
-  // const bill = new Bill(req.body);
-  // getExchangeRate(bill.currencyFrom, bill.currencyTo)
-  //     .then((value) => {
-  //       bill.exchangeRate = value;
-  //     })
-  //     .then(function(){
-  //       const decimalPlaceInfo = getDecimalPlaces(bill, res.locals.currencyInfo);
-  //       bill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
-  //       bill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
-  //       bill.calculateTip();
-  //       bill.calculateTotalPlusTip();
-  //       bill.splitBill();
-  //       bill.convertBill();
-  //       bill.roundBill();
-  //       res.locals.bill = bill;
-  //       next();
-  //     }).catch((err) => {
-  //       next(err);
-  //     })
+
 });
 
 app.use('/result', (req, res, next) => {
   let myBill = res.locals.bill;
-  let currencyInfo = res.locals.currencyInfo
-  console.dir(currencyInfo);
-  console.dir(myBill)
+  let currencyInfo = res.locals.currencyInfo;
   try {
-    const decimalPlaceInfo = bill.getDecimalPlaces(myBill, currencyInfo);
-     myBill.currencyFromPlaces = decimalPlaceInfo.currencyFromPlaces;
-     myBill.currencyToPlaces = decimalPlaceInfo.currencyToPlaces;
-     console.log(decimalPlaceInfo);
-     //console.log(1)
-     bill.calculateTip(myBill);
-     //console.log(2)
-     bill.calculateTotalPlusTip(myBill);
-     //console.log(3)
-     bill.splitBill(myBill);
-     //console.log(4)
-     bill.convert(myBill);
-     ///console.log(5)
-     bill.round(myBill);
-     //console.log(6)
-     res.locals.bill = myBill;
-     //console.log('BUILD')
-     //console.log(myBill);
-     next();
+      bill.build(myBill, currencyInfo);
+      res.locals.bill = myBill;
+      next();
    } catch (err) {
      //console.dir(err);
      error = err;
      error.status = 500;
-     console.log("this fires")
      next(error);
    }
 
